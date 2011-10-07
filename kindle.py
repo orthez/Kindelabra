@@ -28,10 +28,7 @@ class Collection(dict):
     '''Holds a single collection
     '''
     def has_hash(self, filehash):
-        for item in self['items']:
-            if not item.find(filehash) == -1:
-                return True
-        return False
+        return filehash in self['items']
 
     def add_hash(self, filehash):
         self['items'].append(filehash)
@@ -65,25 +62,11 @@ class CollectionDB(dict):
             tmpjson[tmpkey] = tmpvalue
         return tmpjson
 
-    def in_collection(self, collection, filehash):
-        if self[collection].has_hash(filehash):
-            return True
-        else:
-            return False
+    def in_collection(self, collection, ebook):
+        return self[collection].has_hash(ebook.fileident())
 
-    def add_filehash(self, collection, filehash):
-        filehash = '*'+filehash
-        self[collection].add_hash(filehash)
-
-    def add_asin(self, collection, asin, booktype):
-        asin = "#%s^%s" % (asin, booktype)
-        self[collection].add_hash(asin)
-    
     def add_ebook(self, collection, ebook):
-        if ebook.asin != None:
-            self.add_asin(collection, ebook.asin, ebook.type)
-        else:
-            self.add_filehash(collection, ebook.hash)
+        self[collection].add_hash(ebook.fileident())
 
 class Ebook():
     def __init__(self, path):
@@ -129,6 +112,12 @@ class Ebook():
             else:
                 # Couldn't get an ASIN, developper app? We'll use the hash instead, which is what the Kindle itself does, so no harm done.
                 print "\nKindlet Metadata read error, assuming developper app:", path
+    
+    def fileident(self):
+        if self.asin == None:
+            return '*'+self.hash
+        else:
+            return "#%s^%s" % (self.asin, self.type)
 
 class Kindle:
     '''Access a Kindle filesystem

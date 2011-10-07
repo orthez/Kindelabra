@@ -298,15 +298,13 @@ class KindleUI:
             for colpath, colname in targetcols:
                 colname = unicode(colname)
                 if colname in self.db:
-                    try:
-                        asin = self.kindle.files[filehash].asin
-                        if not self.db.in_collection(colname, asin):
-                            colstore.append(colstore[colpath].iter, [filename, filehash, asin])
-                            self.db.add_ebook(colname, self.kindle.files[filehash])
-                    except TypeError:
-                        if not self.db.in_collection(colname, filehash):
-                            colstore.append(colstore[colpath].iter, [filename, filehash, ""])
-                            self.db.add_filehash(colname, filehash)
+					f = self.kindle.files[filehash]
+					if not self.db.in_collection(colname, f):
+						asin = f.asin
+						if asin == None:
+							asin = ""
+						colstore.append(colstore[colpath].iter, [filename, filehash, asin])
+						self.db.add_ebook(colname, f)
                 else:
                     self.status("No such collection:" + colname)
         #self.colview.expand_all()
