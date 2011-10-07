@@ -146,6 +146,7 @@ class Kindle:
                     book = Ebook(fullpath)
                     self.files[book.hash] = book
                     sys.stdout.write(".")
+                    sys.stdout.flush()
         sys.stdout.write("\n")
 
     def searchAsin(self, asin):
