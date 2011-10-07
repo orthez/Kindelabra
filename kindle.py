@@ -67,6 +67,9 @@ class CollectionDB(dict):
     def add_asin(self, collection, asin, booktype):
         asin = "#%s^%s" % (asin, booktype)
         self[collection]['items'].append(asin)
+    
+    def add_ebook(self, collection, ebook):
+        self.add_asin(collection, ebook.asin, ebook.type)
 
 class Ebook():
     def __init__(self, path):

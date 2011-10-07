@@ -302,7 +302,7 @@ class KindleUI:
                         asin = self.kindle.files[filehash].asin
                         if not self.db.in_collection(colname, asin):
                             colstore.append(colstore[colpath].iter, [filename, filehash, asin])
-                            self.db.add_asin(colname, self.kindle.files[filehash].asin, self.kindle.files[filehash].type)
+                            self.db.add_ebook(colname, self.kindle.files[filehash])
                     except TypeError:
                         if not self.db.in_collection(colname, filehash):
                             colstore.append(colstore[colpath].iter, [filename, filehash, ""])
