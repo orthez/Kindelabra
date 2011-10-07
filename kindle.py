@@ -19,6 +19,9 @@ FILTER = ['pdf', 'mobi', 'prc', 'txt', 'tpz', 'azw1', 'azw', 'manga', 'azw2']
 FOLDERS = ['documents', 'pictures']
 
 class Collection(dict):
+    def __init__(self, arg = { 'locale': 'en-US', 'items': [], 'lastAccess': 0}):
+        super(Collection, self).__init__(arg)
+
     '''Holds a single collection
     '''
     def has_hash(self, filehash):

@@ -156,7 +156,7 @@ class KindleUI:
             treesel.select_iter(coliter)
             treepath = treesel.get_selected_rows()[1][0]
             self.colview.scroll_to_cell(treepath)
-            self.db[colname] = kindle.Collection({ 'locale': 'en-US', 'items': [], 'lastAccess': 0})
+            self.db[colname] = kindle.Collection()
         else:
             self.status("%s collection already exists" % colname)
 
