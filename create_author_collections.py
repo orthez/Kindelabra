@@ -25,7 +25,7 @@ for e in k.files.values():
 		created.append(a)
 	if not db.in_collection(a, e):
 		db.add_ebook(a, e)
-	print a, e.title, db[a]
+	print a, e.title
 
 for a in created:
 	if db[a].count() < 3:
