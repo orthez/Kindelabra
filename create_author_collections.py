@@ -13,7 +13,13 @@ created = []
 for e in k.files.values():
 	if e.author == None or e.author == "Unknown":
 		continue
-	a = "_" + e.author
+
+	a = e.author
+	if a.find(",")!=-1:
+		names = [x.strip() for x in a.split(",")]
+		if len(names) == 2:
+			a = names[1] + " " + names[0]
+	a = "_" + a
 	if a not in db:
 		db[a] = Collection()
 		created.append(a)
