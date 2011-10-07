@@ -78,7 +78,10 @@ class CollectionDB(dict):
         self[collection].add_hash(asin)
     
     def add_ebook(self, collection, ebook):
-        self.add_asin(collection, ebook.asin, ebook.type)
+        if ebook.asin != None:
+            self.add_asin(collection, ebook.asin, ebook.type)
+        else:
+            self.add_filehash(collection, ebook.hash)
 
 class Ebook():
     def __init__(self, path):
