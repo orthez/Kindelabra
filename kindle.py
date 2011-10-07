@@ -42,7 +42,9 @@ class Collection(dict):
 class CollectionDB(dict):
     '''Holds a collection database
     '''
-    def __init__(self, colfile):
+    def __init__(self, colfile = None):
+        if colfile == None:
+            return
         with open(colfile) as colfile:
             tmpjson = json.load(colfile)
             tmpdict = dict()
