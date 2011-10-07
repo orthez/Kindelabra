@@ -36,6 +36,9 @@ class Collection(dict):
     def remove_hash(self, filehash):
         self['items'].remove(filehash)
 
+    def count(self):
+        return len(self['items'])
+
 class CollectionDB(dict):
     '''Holds a collection database
     '''
