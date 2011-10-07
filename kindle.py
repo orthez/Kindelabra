@@ -30,6 +30,12 @@ class Collection(dict):
                 return True
         return False
 
+    def add_hash(self, filehash):
+        self['items'].append(filehash)
+
+    def remove_hash(self, filehash):
+        self['items'].remove(filehash)
+
 class CollectionDB(dict):
     '''Holds a collection database
     '''
@@ -62,11 +68,11 @@ class CollectionDB(dict):
 
     def add_filehash(self, collection, filehash):
         filehash = '*'+filehash
-        self[collection]['items'].append(filehash)
+        self[collection].add_hash(filehash)
 
     def add_asin(self, collection, asin, booktype):
         asin = "#%s^%s" % (asin, booktype)
-        self[collection]['items'].append(asin)
+        self[collection].add_hash(asin)
     
     def add_ebook(self, collection, ebook):
         self.add_asin(collection, ebook.asin, ebook.type)

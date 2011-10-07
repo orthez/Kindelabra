@@ -327,11 +327,11 @@ class KindleUI:
                 book = self.kindle.searchAsin(asin)
                 asin = "#%s^%s" % (book.asin, book.type)
                 if self.db[collection].has_hash(asin):
-                    self.db[collection]['items'].remove(asin)
+                    self.db[collection].remove_hash(asin)
                     colstore.remove(colstore[path].iter)
             elif self.db[collection].has_hash(filehash):
                 jsonhash = '*' + filehash
-                self.db[collection]['items'].remove(jsonhash)
+                self.db[collection].remove_hash(jsonhash)
                 colstore.remove(colstore[path].iter)
             else:
                 self.status("File not in collection")
