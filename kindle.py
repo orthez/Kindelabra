@@ -12,6 +12,7 @@ import re
 import json
 import sys
 import datetime
+import codecs
 
 import ebook
 
@@ -71,6 +72,8 @@ class CollectionDB(dict):
     def add_ebook(self, collection, ebook):
         self[collection].add_hash(ebook.fileident())
 
+utf8 = codecs.getdecoder("utf-8")
+
 class Ebook():
     def __init__(self, path):
         self.path = get_kindle_path(path)
@@ -86,13 +89,13 @@ class Ebook():
             if self.meta.title:
                 self.title = self.meta.title
                 if 100 in self.meta.exth:
-                    self.author = self.meta.exth[100]
+                    self.author = utf8(self.meta.exth[100])[0]
                 if 113 in self.meta.exth:
                     self.asin = self.meta.exth[113]
                 if 501 in self.meta.exth:
                     self.type = self.meta.exth[501]
                 if 503 in self.meta.exth:
-                    self.title = self.meta.exth[503]
+                    self.title = utf8(self.meta.exth[503])[0]
             else:
                 print "\nMetadata read error:", path
         elif ext in ['tpz', 'azw1']:
