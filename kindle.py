@@ -11,6 +11,7 @@ import os
 import re
 import json
 import sys
+import datetime
 
 import ebook
 
@@ -174,6 +175,19 @@ class Kindle:
         docs = os.path.exists(os.path.join(self.root, 'documents'))
         sys = os.path.exists(os.path.join(self.root, 'system'))
         return docs and sys
+
+    def getDb(self):
+        colfile = os.path.join(self.root, 'system', 'collections.json')
+        return CollectionDB(colfile)
+    
+    def saveDb(self, db):
+        now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        backup = os.path.join(self.root, 'system', '%s-collections.json.backup' % (now))
+        jsonfile = os.path.join(self.root, 'system', 'collections.json')
+        if os.path.exists(jsonfile):
+            os.rename(jsonfile, backup)
+        with open(os.path.join(self.root, 'system', 'collections.json'), 'wb') as colfile:
+            json.dump(db.toKindleDb(), colfile, separators=(',', ':'), ensure_ascii=True)
 
 # Returns a full path on the kindle filesystem
 def get_kindle_path(path):

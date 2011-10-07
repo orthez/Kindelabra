@@ -360,13 +360,7 @@ class KindleUI:
         self.status("Kindle collections reloaded")
 
     def save(self, widget):
-        now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-        backup = os.path.join(self.root, 'system', '%s-collections.json.backup' % (now))
-        jsonfile = os.path.join(self.root, 'system', 'collections.json')
-        if os.path.exists(jsonfile):
-            os.rename(jsonfile, backup)
-        with open(os.path.join(self.root, 'system', 'collections.json'), 'wb') as colfile:
-            json.dump(self.db.toKindleDb(), colfile, separators=(',', ':'), ensure_ascii=True)
+        self.kindle.saveDb(self.db)
         self.status("Collections saved to Kindle, restart to load your new collections")
 
     def get_filenodes(self, tree, nodes):
