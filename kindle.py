@@ -144,7 +144,7 @@ class Kindle:
 
     def load_folder(self, path):
         sys.stdout.write("Loading " + path)
-        for root, dirs, files in os.walk(os.path.join(self.root, path)):
+        for root, dirs, files in os.walk(os.path.join(self.root, path), followlinks = True):
             for filename in files:
                 if os.path.splitext(filename)[1][1:].lower() in FILTER:
                     fullpath = os.path.abspath(os.path.join(root, filename))
