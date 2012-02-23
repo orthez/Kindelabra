@@ -115,17 +115,19 @@ class KindleUI:
         for collection in self.db:
             citer = self.colmodel.append(None, [collection, "", ""])
             for namehash in self.db[collection]['items']:
+                orighash = namehash
                 if re.match('\*[\w]', namehash):
                     namehash = str(namehash.lstrip("*"))
                 asin = re.match('\#([\w\-]+)\^\w{4}', namehash)
                 if asin:
                     asin = asin.group(1)
-                    try:
-                        book = self.kindle.searchAsin(asin)
-                        namehash = book.hash
-                    except:
-                        namehash = None
+                    book = self.kindle.searchAsin(asin)
+                    if book == None:
                         print "! ASIN %s belongs to collection %s but wasn't found on the device!" %( asin, collection )
+                        self.db[collection]['items'].remove(orighash)
+                        namehash = None
+                    else:
+                        namehash = book.hash
                 if namehash in self.kindle.files:
                     if self.kindle.files[namehash].title:
                         filename = self.kindle.files[namehash].title
