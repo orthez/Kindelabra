@@ -15,6 +15,8 @@ except (IOError, ValueError):
 
 created = []
 
+sample = "__Samples"
+
 for e in k.files.values(): # get all the ebooks, don't care about their keys
 	# Skip things that don't have an author
 	if e.author == None or e.author == "Unknown":
@@ -33,6 +35,12 @@ for e in k.files.values(): # get all the ebooks, don't care about their keys
 		created.append(a)
 	if not db.in_collection(a, e):
 		db.add_ebook(a, e)
+
+	if e.sample:
+		if sample not in db:
+			db[sample] = Collection()
+		if not db.in_collection(sample, e):
+			db.add_ebook(sample, e)
 
 	print a, e.title
 
