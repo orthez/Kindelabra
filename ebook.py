@@ -10,6 +10,11 @@ import struct
 
 import zipfile
 import re
+import codecs
+import os
+import hashlib
+
+KINDLEROOT = '/mnt/us'
 
 class Sectionizer:
     def __init__(self, filename, perm):
@@ -196,3 +201,73 @@ class Topaz(object):
             metadata = self.data[offset:offset + md_len]
             offset += md_len
             self.metadata[tag] = metadata
+
+utf8 = codecs.getdecoder("utf-8")
+
+class Ebook():
+    def __init__(self, path):
+        self.path = self.get_kindle_path(path)
+        self.hash = self.get_hash(path)
+        self.title = None
+        self.meta = None
+        self.asin = None
+        self.type = None
+        self.author = None
+        self.sample = False
+        ext = os.path.splitext(path)[1][1:].lower()
+        if ext in ['mobi', 'azw', 'azw3']:
+            self.meta = Mobi(path)
+            if self.meta.title:
+                self.title = self.meta.title
+                if 100 in self.meta.exth:
+                    self.author = utf8(self.meta.exth[100])[0]
+                if 113 in self.meta.exth:
+                    self.asin = self.meta.exth[113]
+                if 501 in self.meta.exth:
+                    self.type = self.meta.exth[501]
+                if 503 in self.meta.exth:
+                    self.title = utf8(self.meta.exth[503])[0]
+                if 115 in self.meta.exth:
+                    self.sample = self.meta.exth[115] == u"\x00\x00\x00\x01"
+            else:
+                print "\nMetadata read error:", path
+        elif ext in ['tpz', 'azw1']:
+            self.meta = Topaz(path)
+            if self.meta.title:
+                self.title = self.meta.title
+                if self.meta.asin:
+                    self.asin = self.meta.asin
+                if self.meta.type:
+                    self.type = self.meta.type
+            else:
+                print "\nTopaz metadata read error:", path
+        elif ext in ['azw2']:
+            self.meta = Kindlet(path)
+            if self.meta.title:
+                self.title = self.meta.title
+            if self.meta.asin:
+                self.asin = self.meta.asin
+                self.type = 'AZW2'
+            else:
+                # Couldn't get an ASIN, developper app? We'll use the hash instead, which is what the Kindle itself does, so no harm done.
+                print "\nKindlet Metadata read error, assuming developper app:", path
+    
+    # Returns a SHA-1 hash
+    def get_hash(self,path):
+        print repr(path)
+        path = path.encode('utf-8')
+        return hashlib.sha1(path).hexdigest()
+
+    # Returns a full path on the kindle filesystem
+    def get_kindle_path(self, path):
+        path = os.path.normpath(path)
+        folder = os.path.dirname(path)
+        filename = os.path.basename(path)
+        return '/'.join([KINDLEROOT, re.sub(r'.*(documents|pictures)', r'\1', folder), filename]).replace('\\', '/')
+
+    def fileident(self):
+        if self.asin == None:
+            return '*'+self.hash
+        else:
+            return "#%s^%s" % (self.asin, self.type)
+

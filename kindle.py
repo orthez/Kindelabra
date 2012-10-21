@@ -6,18 +6,15 @@
 #license:Creative Commons GNU GPL v2
 # (http://creativecommons.org/licenses/GPL/2.0/)
 
-import hashlib
 import os
 import re
 import json
 import sys
 import datetime
-import codecs
 
 import ebook
 
-KINDLEROOT = '/mnt/us'
-FILTER = ['pdf', 'mobi', 'prc', 'txt', 'tpz', 'azw1', 'azw', 'manga', 'azw2']
+FILTER = ['pdf', 'mobi', 'prc', 'txt', 'tpz', 'azw1', 'azw', 'manga', 'azw2', 'azw3']
 FOLDERS = ['documents', 'pictures']
 
 class Collection(dict):
@@ -72,59 +69,6 @@ class CollectionDB(dict):
     def add_ebook(self, collection, ebook):
         self[collection].add_hash(ebook.fileident())
 
-utf8 = codecs.getdecoder("utf-8")
-
-class Ebook():
-    def __init__(self, path):
-        self.path = get_kindle_path(path)
-        self.hash = get_hash(self.path)
-        self.title = None
-        self.meta = None
-        self.asin = None
-        self.type = None
-        self.author = None
-        ext = os.path.splitext(path)[1][1:].lower()
-        if ext in ['mobi', 'azw']:
-            self.meta = ebook.Mobi(path)
-            if self.meta.title:
-                self.title = self.meta.title
-                if 100 in self.meta.exth:
-                    self.author = utf8(self.meta.exth[100])[0]
-                if 113 in self.meta.exth:
-                    self.asin = self.meta.exth[113]
-                if 501 in self.meta.exth:
-                    self.type = self.meta.exth[501]
-                if 503 in self.meta.exth:
-                    self.title = utf8(self.meta.exth[503])[0]
-            else:
-                print "\nMetadata read error:", path
-        elif ext in ['tpz', 'azw1']:
-            self.meta = ebook.Topaz(path)
-            if self.meta.title:
-                self.title = self.meta.title
-                if self.meta.asin:
-                    self.asin = self.meta.asin
-                if self.meta.type:
-                    self.type = self.meta.type
-            else:
-                print "\nTopaz metadata read error:", path
-        elif ext in ['azw2']:
-            self.meta = ebook.Kindlet(path)
-            if self.meta.title:
-                self.title = self.meta.title
-            if self.meta.asin:
-                self.asin = self.meta.asin
-                self.type = 'AZW2'
-            else:
-                # Couldn't get an ASIN, developper app? We'll use the hash instead, which is what the Kindle itself does, so no harm done.
-                print "\nKindlet Metadata read error, assuming developper app:", path
-    
-    def fileident(self):
-        if self.asin == None:
-            return '*'+self.hash
-        else:
-            return "#%s^%s" % (self.asin, self.type)
-
 class Kindle:
     '''Access a Kindle filesystem
     '''
@@ -148,7 +92,7 @@ class Kindle:
             for filename in files:
                 if os.path.splitext(filename)[1][1:].lower() in FILTER:
                     fullpath = os.path.abspath(os.path.join(root, filename))
-                    book = Ebook(fullpath)
+                    book = ebook.Ebook(fullpath)
                     self.files[book.hash] = book
                     sys.stdout.write(".")
                     sys.stdout.flush()
@@ -194,18 +138,6 @@ class Kindle:
             os.rename(jsonfile, backup)
         with open(os.path.join(self.root, 'system', 'collections.json'), 'wb') as colfile:
             json.dump(db.toKindleDb(), colfile, separators=(',', ':'), ensure_ascii=True)
-
-# Returns a full path on the kindle filesystem
-def get_kindle_path(path):
-    path = os.path.normpath(path)
-    folder = os.path.dirname(path)
-    filename = os.path.basename(path)
-    return '/'.join([KINDLEROOT, re.sub(r'.*(documents|pictures)', r'\1', folder), filename]).replace('\\', '/')
-
-# Returns a SHA-1 hash
-def get_hash(path):
-    path = unicode(path).encode('utf-8')
-    return hashlib.sha1(path).hexdigest()
 
 if __name__ == "__main__":
     k = Kindle("Kindle")
